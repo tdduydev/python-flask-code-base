@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+Flask = "*"
+click = "*"
+Flask-Login = "*"
+Authlib = "*"
+Flask-SQLAlchemy = "*"
+Flask-Migrate = "*"
+SQLAlchemy-Searchable = "*"
+Flask-Cors = "*"
+python-dotenv = "*"
+connexion = "*"
+Werkzeug = "*"
+tornado = "*"
+swagger_ui_bundle  = "*"
+greenlet = {version = "*", platform_python_implementation="=='CPython'"}
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"
