@@ -6,12 +6,14 @@ from myapi.extensions import apispec
 from myapi.extensions import db
 from myapi.extensions import jwt
 from myapi.extensions import migrate
+from flask_cors import CORS
 
 
 def create_app(testing=False):
     """Application factory, used to create application"""
     app = Flask("myapi")
     app.config.from_object("myapi.config")
+    CORS(app)
 
     if testing is True:
         app.config["TESTING"] = True

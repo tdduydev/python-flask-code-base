@@ -1,4 +1,5 @@
 from flask import request, jsonify, Blueprint, current_app as app
+from myapi.api.schemas import UserSchema
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -61,10 +62,13 @@ def login():
 
     username = request.json.get("username", None)
     password = request.json.get("password", None)
+    
     if not username or not password:
         return jsonify({"msg": "Missing username or password"}), 400
 
+    schema = UserSchema()
     user = User.query.filter_by(username=username).first()
+    print("duytd",user)
     if user is None or not pwd_context.verify(password, user.password):
         return jsonify({"msg": "Bad credentials"}), 400
 
@@ -73,8 +77,12 @@ def login():
     add_token_to_database(access_token, app.config["JWT_IDENTITY_CLAIM"])
     add_token_to_database(refresh_token, app.config["JWT_IDENTITY_CLAIM"])
 
-    ret = {"access_token": access_token, "refresh_token": refresh_token}
-    return jsonify(ret), 200
+    ret = { 
+           "accessToken": access_token,
+           "refreshToken": refresh_token, 
+           "userInfo" : schema.dump(user)
+    }
+    return ret
 
 
 @blueprint.route("/refresh", methods=["POST"])
