@@ -1,4 +1,5 @@
 from sqlalchemy.ext.hybrid import hybrid_property
+import datetime
 
 from myapi.extensions import db, pwd_context
 
@@ -10,6 +11,10 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=False)
     _password = db.Column("password", db.String(255), nullable=False)
+    lastName = db.Column(db.String(80), nullable=True)
+    firstName = db.Column(db.String(80), nullable=True)
+    address = db.Column(db.String(80), nullable=True)
+    phoneNumber = db.Column(db.String(12), nullable=True)
     active = db.Column(db.Boolean, default=True)
 
     @hybrid_property
@@ -22,3 +27,11 @@ class User(db.Model):
 
     def __repr__(self):
         return "<User %s>" % self.username
+
+
+    def __init__(self, lastname, firstname, address, phonenumber):
+        self.lastName = self.is_valid_lastName(lastname)
+        self.firstName = self.is_valid_firstName(firstname)
+        self.address = self.is_valid_address(address)
+        self.phoneNumber = self.is_valid_phoneNumber(phonenumber)
+
