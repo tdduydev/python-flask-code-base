@@ -29,9 +29,3 @@ class User(db.Model):
         return "<User %s>" % self.username
 
 
-    def __init__(self, lastname, firstname, address, phonenumber):
-        self.lastName = self.is_valid_lastName(lastname)
-        self.firstName = self.is_valid_firstName(firstname)
-        self.address = self.is_valid_address(address)
-        self.phoneNumber = self.is_valid_phoneNumber(phonenumber)
-
