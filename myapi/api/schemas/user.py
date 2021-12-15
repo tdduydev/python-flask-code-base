@@ -1,16 +1,16 @@
-from flask_marshmallow import Marshmallow
 from myapi.models import User
 from myapi.extensions import ma, db
 
-from marshmallow import fields ,validate
+from marshmallow import validate, fields
+
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
 
     id = ma.Int(dump_only=True)
     password = ma.String(load_only=True, required=True)
     email = fields.Email()
-    lastName = fields.String(validate=validate.Length(max=20))
-    firstName = fields.String(validate=validate.Length(max=20))
+    lastName = fields.String(validate=validate.Length(max=80))
+    firstName = fields.String(validate=validate.Length(max=80))
     address = fields.String(validate=validate.Length(max=80))
     phoneNumber = fields.String(validate=validate.Length(max=12))
 
