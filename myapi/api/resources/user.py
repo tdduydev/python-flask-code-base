@@ -1,13 +1,11 @@
-from flask import request
+from flask import request, jsonify
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required
-from flask_sqlalchemy import Pagination
-from sqlalchemy.sql.functions import user
-from myapi.api.schemas import UserSchema
+from flask_jwt_extended import jwt_required, current_user
+from marshmallow.fields import Email
+from myapi.api.schemas import UserSchema, user
 from myapi.models import User
 from myapi.extensions import db
 from myapi.commons.pagination import paginate
-from sqlalchemy import select
 
 
 class UserResource(Resource):
@@ -84,7 +82,6 @@ class UserResource(Resource):
                     example: user deleted
         404:
           description: user does not exists
-
     """
 
     method_decorators = [jwt_required()]
@@ -109,6 +106,7 @@ class UserResource(Resource):
         db.session.commit()
 
         return {"msg": "user deleted"}
+
 
 class UserList(Resource):
     """Creation and get_all
@@ -171,17 +169,55 @@ class UserList(Resource):
 
         return {"msg": "user created", "user": schema.dump(user)}, 201
 
+
+class UserInform(Resource):
+
+    """Single object resource
+
+   ---
+   get:
+     tags:
+       - api
+     summary: Automatic User loading
+     description: Get a user by jwt login
+     responses:
+       200:
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 user: UserSchema
+       404:
+         description: user does not exists
+   """
+    @jwt_required()
+    def get(self):
+
+        method_decorators = [jwt_required()]
+      
+        return jsonify(
+            id=current_user.id,
+            email=current_user.email,
+            last_name=current_user.last_name,
+            first_name=current_user.first_name,
+            address=current_user.address,
+            phone=current_user.phone
+        )
+
 class UserSearch(Resource):
-  """
-  ---
+
+  """Single object resource
+
+    ---
     get:
       tags:
         - api
-      summary: Search users
-      description: Get a list of users by first name
+      summary: Search User by First Name
+      description: Search user get list 
       parameters:
-        - in: path
-          name: firstName
+        - in: query
+          name: search_key
           schema:
             type: string
       responses:
@@ -190,20 +226,23 @@ class UserSearch(Resource):
             application/json:
               schema:
                 type: object
+                properties:
+                  user: UserSchema
         404:
-          description: cannot find users
-  ---
-  """
+          description: user does not exists
+    """
+
   method_decorators = [jwt_required()]
 
-  def get(self, firstName):
-    schema = UserSchema(many=True)
-    users = User.query.filter(User.firstName == firstName)
-    return paginate(users,schema)
+    # def get(self, search_key):
+    #     schema = UserSchema(many=True)
+    #     query = User.query.filter(User.__ts_vector__.match(expressions, postgresql_regconfig='english')).all()
+    #     return paginate(query, schema)
 
-# class UserInform(Resource):
-#
-#     method_decorators = [jwt_required()]
-#
-#     def put(self):
-#         schema = UserSchema(many=True)
+  def get(self):
+        search_key = request.args.get('search_key')
+        print(search_key)
+        schema = UserSchema(many=True)
+        # query = User.query.filter(User.firstName.match(search_key))
+        query = User.query.filter(User.first_name.match(search_key) | User.phone.match(search_key) )
+        return paginate(query, schema)

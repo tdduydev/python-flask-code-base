@@ -16,13 +16,13 @@ class DemoSeeder(Seeder):
         faker = Faker(
             cls=User,
             init={
-                "username": "admin",
-                "email": "admin@gmail.com",
-                "_password": pwd_context.hash("admin"),
-                "lastname": "Extremely Best admin",
-                "firstname": "Best admin",
+                "username": generator.Name(),
+                "email": generator.String("\\c\\c\\c\\c\\c\\c\\c@gmail.com"),
+                "_password": pwd_context.hash("123456789"),
+                "last_name": generator.Name(),
+                "first_name": generator.Name(),
                 "address": generator.String("\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c"),
-                "phonenumber": generator.String("123456")
+                "phone": generator.String("\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d")
             }
         )
 
