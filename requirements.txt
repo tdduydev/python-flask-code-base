@@ -13,3 +13,4 @@ apispec-webframeworks
 tox
 uwsgi
 psycopg2-binary
+flask-cors

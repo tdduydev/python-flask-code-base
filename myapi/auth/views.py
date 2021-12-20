@@ -1,4 +1,4 @@
-from flask import json, request, jsonify, Blueprint, current_app as app
+from flask import request, jsonify, Blueprint, current_app as app
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -11,7 +11,7 @@ from myapi.api.schemas.user import UserSchema
 from myapi.models import User
 from myapi.extensions import pwd_context, jwt, apispec
 from myapi.auth.helpers import revoke_token, is_token_revoked, add_token_to_database
-
+import json
 
 blueprint = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -73,8 +73,10 @@ def login():
     refresh_token = create_refresh_token(identity=user.id)
     add_token_to_database(access_token, app.config["JWT_IDENTITY_CLAIM"])
     add_token_to_database(refresh_token, app.config["JWT_IDENTITY_CLAIM"])
-    ret = {"access_token": access_token, "refresh_token": refresh_token,"userinfo" : UserSchema().dump(user)}
-    return jsonify(ret), 200
+    print("User: ")
+    print(user)
+    ret = {"access_token": access_token, "refresh_token": refresh_token,"userInfo" : UserSchema().dump(user) }
+    return ret, 200
 
 
 @blueprint.route("/refresh", methods=["POST"])
