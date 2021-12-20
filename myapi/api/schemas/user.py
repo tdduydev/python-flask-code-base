@@ -11,8 +11,8 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     email = fields.Email()
     lastName = fields.String(validate=validate.Length(max=80))
     firstName = fields.String(validate=validate.Length(max=80))
-    address = fields.String(validate=validate.Length(max=80))
-    phoneNumber = fields.String(validate=validate.Length(max=12))
+    address = fields.String(validate=validate.Length(max=300))
+    phoneNumber = fields.String(validate=validate.Length(max=11))
 
     class Meta:
         model = User

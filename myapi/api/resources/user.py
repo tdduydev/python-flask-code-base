@@ -1,7 +1,8 @@
-from flask import request
+from flask import request, jsonify
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required
-from myapi.api.schemas import UserSchema
+from flask_jwt_extended import jwt_required, current_user
+from marshmallow.fields import Email
+from myapi.api.schemas import UserSchema, user
 from myapi.models import User
 from myapi.extensions import db
 from myapi.commons.pagination import paginate
@@ -169,10 +170,77 @@ class UserList(Resource):
         return {"msg": "user created", "user": schema.dump(user)}, 201
 
 
-# class UserInform(Resource):
-#
-#     method_decorators = [jwt_required()]
-#
-#     def put(self):
-#         schema = UserSchema(many=True)
+class UserInform(Resource):
 
+    """Single object resource
+
+   ---
+   get:
+     tags:
+       - api
+     summary: Automatic User loading
+     description: Get a user by jwt login
+     responses:
+       200:
+         content:
+           application/json:
+             schema:
+               type: object
+               properties:
+                 user: UserSchema
+       404:
+         description: user does not exists
+   """
+    @jwt_required()
+    def get(self):
+
+        method_decorators = [jwt_required()]
+      
+        return jsonify(
+            id=current_user.id,
+            email=current_user.email,
+            lastName=current_user.lastName,
+            firstName=current_user.firstName,
+            address=current_user.address,
+            phoneNumber=current_user.phoneNumber
+        )
+
+class UserSearch(Resource):
+
+  """Single object resource
+
+    ---
+    get:
+      tags:
+        - api
+      summary: Search User by first Name
+      description: Search user get list 
+      parameters:
+        - in: path
+          name: search_key
+          schema:
+            type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: UserSchema
+        404:
+          description: user does not exists
+    """
+
+  method_decorators = [jwt_required()]
+
+    # def get(self, search_key):
+    #     schema = UserSchema(many=True)
+    #     query = User.query.filter(User.__ts_vector__.match(expressions, postgresql_regconfig='english')).all()
+    #     return paginate(query, schema)
+
+  def get(self, search_key):
+        schema = UserSchema(many=True)
+        # query = User.query.filter(User.firstName.match(search_key))
+        query = User.query.filter(User.firstName.match(search_key) | User.phoneNumber.match(search_key) )
+        return paginate(query, schema)

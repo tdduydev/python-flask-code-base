@@ -1,7 +1,11 @@
+from typing import cast
 from sqlalchemy.ext.hybrid import hybrid_property
 import datetime
 from myapi.extensions import db, pwd_context
 from flask_seeder import Seeder, Faker, generator
+from sqlalchemy.dialects import postgresql
+from sqlalchemy import func , Index
+
 
 class User(db.Model):
     """Basic user model"""
@@ -36,8 +40,26 @@ class User(db.Model):
         self.firstName = firstname
         self.address = address
         self.phoneNumber = phonenumber
-        
+
     def __str__(self):
         return "ID=%d, userName=%s, Email=%s, passWord=%s, lastName=%s, firstName=%s, address=%s, phoneNumber=%s" % \
                (self.id, self.username, self.email, self._password, self.lastName, self.firstName, self.address,
                 self.phoneNumber)
+
+    def create_tsvector(*args):
+        exp = args[0]
+        for e in args[1:]:
+            exp += ' ' + e
+        return func.to_tsvector('english', exp)
+
+    __ts_vector__ = create_tsvector(
+        cast(func.coalesce(firstName, ''), postgresql.TEXT)
+    )
+
+    __table_args__ = (
+        Index(
+            'idx_user_fts',
+            __ts_vector__,
+            postgresql_using='gin'
+        ) ,
+    )
