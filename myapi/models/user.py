@@ -14,10 +14,10 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=False)
     _password = db.Column("password", db.String(255), nullable=False)
-    lastName = db.Column(db.String(80), nullable=True)
-    firstName = db.Column(db.String(80), nullable=True)
+    last_name = db.Column(db.String(80), nullable=True)
+    first_name = db.Column(db.String(80), nullable=True)
     address = db.Column(db.String(80), nullable=True)
-    phoneNumber = db.Column(db.String(12), nullable=True)
+    phone = db.Column(db.String(12), nullable=True)
     active = db.Column(db.Boolean, default=True)
 
     @hybrid_property
@@ -36,15 +36,15 @@ class User(db.Model):
         self.username = username
         self.email = email
         self._password = _password
-        self.lastName = lastname
-        self.firstName = firstname
+        self.last_name = lastname
+        self.first_name = firstname
         self.address = address
-        self.phoneNumber = phonenumber
+        self.phone = phonenumber
 
     def __str__(self):
-        return "ID=%d, userName=%s, Email=%s, passWord=%s, lastName=%s, firstName=%s, address=%s, phoneNumber=%s" % \
-               (self.id, self.username, self.email, self._password, self.lastName, self.firstName, self.address,
-                self.phoneNumber)
+        return "ID=%d, userName=%s, Email=%s, passWord=%s, last_name=%s, first_name=%s, address=%s, phone=%s" % \
+               (self.id, self.username, self.email, self._password, self.last_name, self.first_name, self.address,
+                self.phone)
 
     def create_tsvector(*args):
         exp = args[0]
@@ -53,7 +53,7 @@ class User(db.Model):
         return func.to_tsvector('english', exp)
 
     __ts_vector__ = create_tsvector(
-        cast(func.coalesce(firstName, ''), postgresql.TEXT)
+        cast(func.coalesce(first_name, ''), postgresql.TEXT)
     )
 
     __table_args__ = (

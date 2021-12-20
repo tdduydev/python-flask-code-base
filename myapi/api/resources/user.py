@@ -199,10 +199,10 @@ class UserInform(Resource):
         return jsonify(
             id=current_user.id,
             email=current_user.email,
-            lastName=current_user.lastName,
-            firstName=current_user.firstName,
+            last_name=current_user.last_name,
+            first_name=current_user.first_name,
             address=current_user.address,
-            phoneNumber=current_user.phoneNumber
+            phone=current_user.phone
         )
 
 class UserSearch(Resource):
@@ -213,10 +213,10 @@ class UserSearch(Resource):
     get:
       tags:
         - api
-      summary: Search User by first Name
+      summary: Search User by First Name
       description: Search user get list 
       parameters:
-        - in: path
+        - in: query
           name: search_key
           schema:
             type: string
@@ -239,8 +239,10 @@ class UserSearch(Resource):
     #     query = User.query.filter(User.__ts_vector__.match(expressions, postgresql_regconfig='english')).all()
     #     return paginate(query, schema)
 
-  def get(self, search_key):
+  def get(self):
+        search_key = request.args.get('search_key')
+        print(search_key)
         schema = UserSchema(many=True)
         # query = User.query.filter(User.firstName.match(search_key))
-        query = User.query.filter(User.firstName.match(search_key) | User.phoneNumber.match(search_key) )
+        query = User.query.filter(User.first_name.match(search_key) | User.phone.match(search_key) )
         return paginate(query, schema)

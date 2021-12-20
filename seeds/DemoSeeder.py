@@ -19,10 +19,10 @@ class DemoSeeder(Seeder):
                 "username": generator.Name(),
                 "email": generator.String("\\c\\c\\c\\c\\c\\c\\c@gmail.com"),
                 "_password": pwd_context.hash("123456789"),
-                "lastname": generator.Name(),
-                "firstname": generator.Name(),
+                "last_name": generator.Name(),
+                "first_name": generator.Name(),
                 "address": generator.String("\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c"),
-                "phonenumber": generator.String("\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d")
+                "phone": generator.String("\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d")
             }
         )
 

@@ -9,10 +9,10 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     id = ma.Int(dump_only=True)
     password = ma.String(load_only=True, required=True)
     email = fields.Email()
-    lastName = fields.String(validate=validate.Length(max=80))
-    firstName = fields.String(validate=validate.Length(max=80))
+    last_name = fields.String(validate=validate.Length(max=80))
+    first_name = fields.String(validate=validate.Length(max=80))
     address = fields.String(validate=validate.Length(max=300))
-    phoneNumber = fields.String(validate=validate.Length(max=11))
+    phone = fields.String(validate=validate.Length(max=11))
 
     class Meta:
         model = User
