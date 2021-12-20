@@ -1,10 +1,13 @@
 from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required
+from flask_sqlalchemy import Pagination
+from sqlalchemy.sql.functions import user
 from myapi.api.schemas import UserSchema
 from myapi.models import User
 from myapi.extensions import db
 from myapi.commons.pagination import paginate
+from sqlalchemy import select
 
 
 class UserResource(Resource):
@@ -81,6 +84,7 @@ class UserResource(Resource):
                     example: user deleted
         404:
           description: user does not exists
+
     """
 
     method_decorators = [jwt_required()]
@@ -105,7 +109,6 @@ class UserResource(Resource):
         db.session.commit()
 
         return {"msg": "user deleted"}
-
 
 class UserList(Resource):
     """Creation and get_all
@@ -168,6 +171,35 @@ class UserList(Resource):
 
         return {"msg": "user created", "user": schema.dump(user)}, 201
 
+class UserSearch(Resource):
+  """
+  ---
+    get:
+      tags:
+        - api
+      summary: Search users
+      description: Get a list of users by first name
+      parameters:
+        - in: path
+          name: firstName
+          schema:
+            type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: cannot find users
+  ---
+  """
+  method_decorators = [jwt_required()]
+
+  def get(self, firstName):
+    schema = UserSchema(many=True)
+    users = User.query.filter(User.firstName == firstName)
+    return paginate(users,schema)
 
 # class UserInform(Resource):
 #
@@ -175,4 +207,3 @@ class UserList(Resource):
 #
 #     def put(self):
 #         schema = UserSchema(many=True)
-
