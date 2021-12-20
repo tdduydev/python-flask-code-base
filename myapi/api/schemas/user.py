@@ -1,3 +1,4 @@
+from flask import json
 from myapi.models import User
 from myapi.extensions import ma, db
 
@@ -19,3 +20,5 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         sqla_session = db.session
         load_instance = True
         exclude = ("_password",)
+
+    

@@ -1,4 +1,4 @@
-from flask import request, jsonify, Blueprint, current_app as app
+from flask import json, request, jsonify, Blueprint, current_app as app
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -6,6 +6,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
     get_jwt,
 )
+from myapi.api.schemas.user import UserSchema
 
 from myapi.models import User
 from myapi.extensions import pwd_context, jwt, apispec
@@ -72,8 +73,7 @@ def login():
     refresh_token = create_refresh_token(identity=user.id)
     add_token_to_database(access_token, app.config["JWT_IDENTITY_CLAIM"])
     add_token_to_database(refresh_token, app.config["JWT_IDENTITY_CLAIM"])
-
-    ret = {"access_token": access_token, "refresh_token": refresh_token}
+    ret = {"access_token": access_token, "refresh_token": refresh_token,"userinfo" : UserSchema().dump(user)}
     return jsonify(ret), 200
 
 

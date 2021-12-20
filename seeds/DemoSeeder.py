@@ -16,17 +16,17 @@ class DemoSeeder(Seeder):
         faker = Faker(
             cls=User,
             init={
-                "username": generator.Name(),
-                "email": generator.String("\\c\\c\\c\\c\\c\\c\\c@gmail.com"),
-                "_password": pwd_context.hash("123456789"),
-                "lastname": generator.Name(),
-                "firstname": generator.Name(),
+                "username": "admin",
+                "email": "admin@gmail.com",
+                "_password": pwd_context.hash("admin"),
+                "lastname": "Extremely Best admin",
+                "firstname": "Best admin",
                 "address": generator.String("\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c"),
-                "phonenumber": generator.String("\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d")
+                "phonenumber": generator.String("123456")
             }
         )
 
         # Create 5 users
-        for user in faker.create(50):
+        for user in faker.create(1):
             # print("Adding user: %s" % user)
             self.db.session.add(user)
