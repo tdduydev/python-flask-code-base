@@ -16,8 +16,8 @@ class DemoSeeder(Seeder):
         faker = Faker(
             cls=User,
             init={
-                "username": "testing",
-                "email": "testing@gmail.com",
+                "username": "testing1",
+                "email": "testing1@gmail.com",
                 "_password": pwd_context.hash("testing"),
                 "lastname": generator.Name(),
                 "firstname": generator.Name(),

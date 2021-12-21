@@ -1,7 +1,9 @@
 from typing import cast
 from sqlalchemy.ext.hybrid import hybrid_property
 import datetime
+from sqlalchemy.sql.expression import true
 from myapi.extensions import db, pwd_context
+from flask_jwt_extended import current_user
 from flask_seeder import Seeder, Faker, generator
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import func , Index
@@ -12,13 +14,15 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(80), unique=True, nullable=True)
     _password = db.Column("password", db.String(255), nullable=False)
     last_name = db.Column(db.String(80), nullable=True)
     first_name = db.Column(db.String(80), nullable=True)
     address = db.Column(db.String(80), nullable=True)
     phone = db.Column(db.String(12), nullable=True)
     active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=True )
+    updated_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), server_onupdate=db.func.current_timestamp(), nullable=True )
 
     @hybrid_property
     def password(self):

@@ -1,4 +1,6 @@
+from enum import unique
 from flask import json
+from marshmallow_sqlalchemy.schema import auto_field
 from myapi.models import User
 from myapi.extensions import ma, db
 
@@ -14,6 +16,8 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     first_name = fields.String(validate=validate.Length(max=80))
     address = fields.String(validate=validate.Length(max=300))
     phone = fields.String(validate=validate.Length(max=11))
+    created_at = auto_field(dump_only = True)
+    updated_at = auto_field(dump_only = True)
 
     class Meta:
         model = User
