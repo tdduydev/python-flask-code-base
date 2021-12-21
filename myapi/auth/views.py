@@ -5,11 +5,13 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
     get_jwt,
+    current_user as user_jwt
 )
+from sqlalchemy.sql.functions import current_user
 from myapi.api.schemas.user import UserSchema
 
 from myapi.models import User
-from myapi.extensions import pwd_context, jwt, apispec
+from myapi.extensions import pwd_context, jwt, apispec, db
 from myapi.auth.helpers import revoke_token, is_token_revoked, add_token_to_database
 import json
 
@@ -75,7 +77,7 @@ def login():
     add_token_to_database(refresh_token, app.config["JWT_IDENTITY_CLAIM"])
     print("User: ")
     print(user)
-    ret = {"access_token": access_token, "refresh_token": refresh_token,"userInfo" : UserSchema().dump(user) }
+    ret = {"access_token": access_token, "refresh_token": refresh_token, "userInfo": UserSchema().dump(user)}
     return ret, 200
 
 
@@ -176,6 +178,61 @@ def revoke_refresh_token():
     return jsonify({"message": "token revoked"}), 200
 
 
+
+@blueprint.route("/change_password", methods=["PUT"])
+@jwt_required()
+def change_password():
+    """Change Password 
+
+    ---
+     put:
+        tags:
+          - auth
+        summary: Change Password
+        description: Change password for user
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  old_password:
+                    type: string
+                    example: P4$$w0rd!
+                    required: true
+                  new_password:
+                    type: string
+                    example: PaSsW0rD@
+                    required: true
+                  retype_password:
+                    type: string
+                    example: PaSsW0rD@
+                    required: true
+        responses:
+          200:
+            description: change password successfully
+          400:
+            description: bad request
+    """
+    method_decorators = [jwt_required()]
+    password = user_jwt.password
+    old_password = request.json.get("old_password", None)
+    new_password = request.json.get("new_password", None)
+    retype_password = request.json.get("retype_password", None)
+    
+    if pwd_context.verify(old_password, password) is False:
+      return jsonify({"msg": "Enter a valid password and try again."}), 400
+      
+    if new_password != retype_password:
+      return jsonify({"msg": "Password do not match"}), 400
+    
+    user = User.query.filter_by(username=user_jwt.username).first()
+    user.password = new_password
+    db.session.commit()
+
+    return jsonify({"msg": "Change Password Successfully"}), 200
+
+
 @jwt.user_lookup_loader
 def user_loader_callback(jwt_headers, jwt_payload):
     identity = jwt_payload["sub"]
@@ -193,3 +250,4 @@ def register_views():
     apispec.spec.path(view=refresh, app=app)
     apispec.spec.path(view=revoke_access_token, app=app)
     apispec.spec.path(view=revoke_refresh_token, app=app)
+    apispec.spec.path(view=change_password, app=app)
