@@ -1,10 +1,10 @@
 from flask import request, jsonify
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required, current_user
+from flask_jwt_extended import jwt_required, current_user , get_current_user
 from marshmallow.fields import Email
 from myapi.api.schemas import UserSchema, user
 from myapi.models import User
-from myapi.extensions import db
+from myapi.extensions import db , pwd_context
 from myapi.commons.pagination import paginate
 
 
@@ -202,7 +202,7 @@ class UserInform(Resource):
             last_name=current_user.last_name,
             first_name=current_user.first_name,
             address=current_user.address,
-            phone=current_user.phone
+            phone=current_user.phone,
         )
 
 class UserSearch(Resource):
@@ -243,6 +243,5 @@ class UserSearch(Resource):
         search_key = request.args.get('search_key')
         print(search_key)
         schema = UserSchema(many=True)
-        # query = User.query.filter(User.firstName.match(search_key))
         query = User.query.filter(User.first_name.match(search_key) | User.phone.match(search_key) )
         return paginate(query, schema)
