@@ -3,10 +3,10 @@ from myapi.models.role import Role
 from myapi.models.user import User
 
 class UserWithRole(db.Model):
-    __tablename__ = "User_Role"
+    __tablename__ = "User_Roles"
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.ForeignKey("User.id"), primary_key = True)
-    role_id = db.Column(db.ForeignKey("Role.id"), primary_key = True)
+    user_id = db.Column(db.ForeignKey("Users.id"), primary_key = True)
+    role_id = db.Column(db.ForeignKey("Roles.id"), primary_key = True)
     user = db.relationship("User", lazy = "joined")
     role = db.relationship("Role", lazy = "joined")
 

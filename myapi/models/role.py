@@ -2,7 +2,7 @@ from enum import unique
 from flask_seeder.generator import String
 from myapi.extensions import db
 class Role(db.Model):
-    __tablename__ = "Role"
+    __tablename__ = "Roles"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique = True , nullable = False)
     permissions = db.Column(db.Text, nullable = True, )
