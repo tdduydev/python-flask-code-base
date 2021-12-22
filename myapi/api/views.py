@@ -3,7 +3,7 @@ from flask_restful import Api
 from marshmallow import ValidationError
 from myapi.extensions import apispec
 from myapi.api.resources import UserResource, UserList, UserInform, UserSearch
-from myapi.api.schemas import UserSchema
+from myapi.api.schemas import UserSchema, RoleSchema, UserWithRoleSchema
 
 
 blueprint = Blueprint("api", __name__, url_prefix="/api/v1")
@@ -19,6 +19,9 @@ api.add_resource(UserSearch, "/search", endpoint="search")
 @blueprint.before_app_first_request
 def register_views():
     apispec.spec.components.schema("UserSchema", schema=UserSchema)
+    apispec.spec.components.schema("RoleSchema", schema=RoleSchema)
+    apispec.spec.components.schema("UserWithRoleSchema", schema=UserWithRoleSchema)
+
     apispec.spec.path(view=UserResource, app=current_app)
     apispec.spec.path(view=UserList, app=current_app)
     apispec.spec.path(view=UserInform, app=current_app)

@@ -7,7 +7,7 @@ class Role(db.Model):
     permissions = db.Column(db.Text, nullable = True, )
     description = db.Column(db.Text, nullable = True)
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=True )
-    updated_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), server_onupdate=db.func.current_timestamp(), nullable=True )
+    updated_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), server_onupdate = db.func.current_timestamp(), nullable=True )
 
     def __repr__(self) -> str:
         return f"<Role {self.name}>"
