@@ -13,6 +13,7 @@ from flask_jwt_extended import (
 from flask import request, jsonify, Blueprint, current_app as app
 from myapi.extensions import db, apispec
 from myapi.models import User, UserWithRole, Role
+from myapi.user.schemas.role import RoleSchema
 
 
 blueprint = Blueprint("role", __name__, url_prefix="/role")
@@ -82,35 +83,49 @@ def assign_role():
     
 
     user_with_role = UserWithRole(user=intended_user,role=intended_role)
-    if not user_with_role:
+    if user_with_role:
       db.session.add(user_with_role)
       db.session.commit()
       return jsonify({"msg":"User has been assigned successfully"}), 201
 
-# @blueprint.route("/assign_role",methods=["POST"])
-# @jwt_required()
-# def add_role():
-#     """Add new role
-#     ---
-#     post:
-#       tags:
-#         - Add new role
-#       summary: Add role
-#       description: Add a new role to assign to user
-#       requestBody:
-#         content:
-#           application/json:
-#             schema:
-#               UserSchema
-#         responses:
-#         201:
-#           description: user has been assigned successfully
-#         400:
-#           description: bad request
-#         401:
-#           description: unauthorized
-#     """
+@blueprint.route("/add_role",methods=["POST"])
+@jwt_required()
+def add_role():
+    """Add role
+    ---
+    post:
+        tags:
+          - role
+        summary: Add role
+        description: Add a new role
+        requestBody:
+          content:
+            application/json:
+              schema:
+                RoleSchema
+        responses:
+          201:
+            description: Role has been created successfully
+          400:
+            description: bad request
+          401:
+            description: unauthorized
+    """
+    #CHECK IF REQUEST IS SENT AS JSON
+    #IF NOT, SEND RESPONSE STATUS 400
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+    
+    schema = RoleSchema()
+    role = schema.load(request.json)
 
+    if not role:
+        return jsonify({"msg":"Role cannot be created"}), 400
+    
+    db.session.add(role)
+    db.session.commit()
+    
 @blueprint.before_app_first_request
 def register_views():
     apispec.spec.path(view=assign_role, app=app)
+    apispec.spec.path(view=add_role, app=app)

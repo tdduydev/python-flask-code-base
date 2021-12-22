@@ -8,7 +8,7 @@ from flask_jwt_extended import (
     current_user as user_jwt
 )
 from sqlalchemy.sql.functions import current_user
-from myapi.api.schemas.user import UserSchema
+from myapi.user.schemas.user import UserSchema
 
 from myapi.models import User
 from myapi.extensions import pwd_context, jwt, apispec, db
@@ -36,11 +36,11 @@ def login():
               properties:
                 username:
                   type: string
-                  example: myuser
+                  example: admin
                   required: true
                 password:
                   type: string
-                  example: P4$$w0rd!
+                  example: admin
                   required: true
       responses:
         200:

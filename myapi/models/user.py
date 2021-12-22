@@ -11,7 +11,7 @@ from sqlalchemy import func , Index
 
 class User(db.Model):
     """Basic user model"""
-
+    __tablename__ = "User"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=True)

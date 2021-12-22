@@ -11,6 +11,7 @@ class RoleSchema(ma.SQLAlchemyAutoSchema):
     id = ma.Int(dump_only=True)
     created_at = auto_field(dump_only = True)
     updated_at = auto_field(dump_only = True)
+    deleted_at = auto_field(dump_only = True)
 
     class Meta:
         model = Role
