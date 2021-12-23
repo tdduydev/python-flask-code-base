@@ -1,4 +1,3 @@
-
 from re import I
 from flask import json
 from flask.json import jsonify
@@ -11,6 +10,7 @@ from flask_jwt_extended import (
     current_user as user_jwt
 )
 from flask import request, jsonify, Blueprint, current_app as app
+from sqlalchemy.sql.expression import update
 from myapi.extensions import db, apispec
 from myapi.models import User, UserWithRole, Role
 from myapi.user.schemas.role import RoleSchema
@@ -81,8 +81,10 @@ def assign_role():
     if not intended_role:
       return jsonify({"msg":"Role doesn't exist"}),400
     
-
+    #INSTANTIATE AN UserWithRole OBJECT 
     user_with_role = UserWithRole(user=intended_user,role=intended_role)
+
+    #CHECK IF OBJECT IS INSTANTIATED THEN ADD TO THE DATABASE
     if user_with_role:
       db.session.add(user_with_role)
       db.session.commit()
@@ -116,16 +118,65 @@ def add_role():
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
     
+    #SETUP SCHEMA AND TURN JSON INTO THE CORRECT OBJECT
     schema = RoleSchema()
     role = schema.load(request.json)
 
+    #CHECK IF DATA IS INSTANTIATED
     if not role:
         return jsonify({"msg":"Role cannot be created"}), 400
     
+    #ADD DATA TO THE DATABASE AND COMMIT
     db.session.add(role)
     db.session.commit()
+    return jsonify({"msg":"Role has been created successfully"}), 201
+
+@blueprint.route("/update_role/<role_id>",methods=["POST"])
+@jwt_required()
+def update_role(role_id):
+    """Update role
+    ---
+    post:
+        tags:
+          - role
+        summary: Update role
+        description: Update a role with new data
+        parameters:
+          - in: path
+            name: role_id
+            schema:
+              type: integer
+        requestBody:
+          content:
+            application/json:
+              schema:
+                RoleSchema
+        responses:
+          201:
+            description: Role has been updated successfully
+          400:
+            description: bad request
+          401:
+            description: unauthorized
+    """
+    #CHECK IF REQUEST IS SENT AS JSON
+    #IF NOT, SEND RESPONSE STATUS 400
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
     
+    #SETUP SCHEMA AND TURN JSON INTO THE CORRECT OBJECT
+    schema = RoleSchema()
+    role = Role.query.get_or_404(role_id)
+    role = schema.load(request.json, instance = role)
+
+    db.session.commit()
+
+    return jsonify({"msg":"Role has been updated successfully"}), 201
+    
+
 @blueprint.before_app_first_request
 def register_views():
     apispec.spec.path(view=assign_role, app=app)
     apispec.spec.path(view=add_role, app=app)
+    apispec.spec.path(view=update_role, app=app)
+
