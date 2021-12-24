@@ -3,7 +3,7 @@ version: "3"
 
 services:
   web:
-    image: myapi
+    image: 10.86.224.30:5000/flack-api
     build: .
     command: uwsgi --http 0.0.0.0:7777 --module myapi.wsgi:app
     env_file:
