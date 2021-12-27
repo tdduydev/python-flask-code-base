@@ -1,10 +1,10 @@
 from flask import request, jsonify
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required, current_user 
+from flask_jwt_extended import jwt_required, current_user
 from marshmallow.fields import Email
 from myapi.user.schemas import UserSchema, user
 from myapi.models import User
-from myapi.extensions import db , pwd_context
+from myapi.extensions import db, pwd_context
 from myapi.commons.pagination import paginate
 
 
@@ -195,7 +195,7 @@ class UserInform(Resource):
     def get(self):
 
         method_decorators = [jwt_required()]
-      
+
         return jsonify(
             id=current_user.id,
             email=current_user.email,
@@ -205,43 +205,44 @@ class UserInform(Resource):
             phone=current_user.phone,
         )
 
+
 class UserSearch(Resource):
 
-  """Single object resource
+    """Single object resource
 
-    ---
-    get:
-      tags:
-        - api
-      summary: Search User by First Name
-      description: Search user get list 
-      parameters:
-        - in: query
-          name: search_key
-          schema:
-            type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  user: UserSchema
-        404:
-          description: user does not exists
-    """
+      ---
+      get:
+        tags:
+          - api
+        summary: Search User by First Name
+        description: Search user get list 
+        parameters:
+          - in: query
+            name: search_key
+            schema:
+              type: string
+        responses:
+          200:
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    user: UserSchema
+          404:
+            description: user does not exists
+      """
 
-  method_decorators = [jwt_required()]
+    method_decorators = [jwt_required()]
 
     # def get(self, search_key):
     #     schema = UserSchema(many=True)
     #     query = User.query.filter(User.__ts_vector__.match(expressions, postgresql_regconfig='english')).all()
     #     return paginate(query, schema)
 
-  def get(self):
+    def get(self):
         search_key = request.args.get('search_key')
         print(search_key)
         schema = UserSchema(many=True)
-        query = User.query.filter(User.first_name.match(search_key) | User.phone.match(search_key) )
+        query = User.query.filter(User.first_name.match(search_key) | User.phone.match(search_key))
         return paginate(query, schema)

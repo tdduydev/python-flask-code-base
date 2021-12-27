@@ -26,6 +26,7 @@ blueprint = Blueprint("role", __name__, url_prefix="/role")
 
 @blueprint.route("/assign/<userid>/<roleid>", methods=["POST"])
 @jwt_required()
+@permissions_required("role", ["assign_role"])
 def assign_role(userid, roleid):
 
     # region Swagger UI
@@ -81,6 +82,7 @@ def assign_role(userid, roleid):
 
 @blueprint.route("/unassign/<userid>/<roleid>", methods=["DELETE"])
 @jwt_required()
+@permissions_required("role", ["unassign_role"])
 def unassign_role(userid, roleid):
     # region Swagger UI
     """Unassign user with role
@@ -135,6 +137,7 @@ def unassign_role(userid, roleid):
 
 @blueprint.route("", methods=["POST"])
 @jwt_required()
+@permissions_required("role", ["create"])
 def add_role():
     # region Swagger UI
     """Add role
@@ -181,7 +184,7 @@ def add_role():
 
 @blueprint.route("/<id>", methods=["PUT"])
 @jwt_required()
-@permissions_required("role",["edit"])
+@permissions_required("role", ["update"])
 def update_role(id):
     # region Swagger UI
     """Update role
@@ -228,6 +231,7 @@ def update_role(id):
 
 @blueprint.route("/<id>", methods=["GET"])
 @jwt_required()
+@permissions_required("role", ["get"])
 def get_role(id):
     # region Swagger UI
     """Get role
@@ -265,6 +269,7 @@ def get_role(id):
 
 @blueprint.route("/list", methods=["GET"])
 @jwt_required()
+@permissions_required("role", ["get"])
 def get_role_list():
     # region Swagger UI
     """Get role
@@ -295,8 +300,9 @@ def get_role_list():
     return jsonify(RoleSchema().dump(roles, many=True)), 200
 
 
-@blueprint.route("/<userid>", methods=["GET"])
+@blueprint.route("/list/<userid>", methods=["GET"])
 @jwt_required()
+@permissions_required("role", ["get"])
 def get_user_role(userid):
     # region Swagger UI
     """Get user role
@@ -329,13 +335,14 @@ def get_user_role(userid):
     # endregion
 
     # GET THE ROLES USING THE userid
-    roles = Role.query.join(UserWithRole, Role.id == UserWithRole.role_id).join(
-        User, UserWithRole.user_id == User.id).filter_by(User.id == userid).all()
-    return jsonify(RoleSchema().dump(role)), 200
+    roles = Role.query.join(UserWithRole).join(User).filter(User.id == userid).all()
+    print(roles)
+    return jsonify(RoleSchema().dump(roles, many=True)), 200
 
 
-@blueprint.route("/<id>", methods=["DELETE"])
-@jwt_required()
+@ blueprint.route("/<id>", methods=["DELETE"])
+@ jwt_required()
+@ permissions_required("role", ["delete"])
 def delete_role(id):
     # region Swagger UI
     """Delete role
@@ -371,7 +378,7 @@ def delete_role(id):
     return jsonify({"msg": "Role has been deleted successfully"}), 200
 
 
-@blueprint.before_app_first_request
+@ blueprint.before_app_first_request
 def register_views():
     apispec.spec.path(view=assign_role, app=app)
     apispec.spec.path(view=add_role, app=app)
