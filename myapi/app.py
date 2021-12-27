@@ -1,5 +1,5 @@
 from flask import Flask
-from myapi import user, auth, role
+from myapi import news, user, auth, role, tag
 from myapi import manage
 from myapi.extensions import apispec
 from myapi.extensions import db
@@ -66,3 +66,5 @@ def register_blueprints(app):
     app.register_blueprint(auth.views.blueprint)
     app.register_blueprint(user.views.blueprint)
     app.register_blueprint(role.views.blueprint)
+    app.register_blueprint(news.views.blueprint)
+    app.register_blueprint(tag.views.blueprint)

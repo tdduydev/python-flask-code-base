@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required, current_user , get_current_user
+from flask_jwt_extended import jwt_required, current_user 
 from marshmallow.fields import Email
 from myapi.user.schemas import UserSchema, user
 from myapi.models import User
