@@ -25,8 +25,25 @@ class DemoSeeder(Seeder):
                 "phonenumber": generator.String("\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d")
             }
         )
+        # Create 1000 users
+        # for user in faker.create(1000):
+        #     # print("Adding user: %s" % user)
+        #     self.db.session.add(user)
 
-        # Create 5 users
-        for user in faker.create(1):
-            # print("Adding user: %s" % user)
+        adminfaker = Faker(
+            cls=User,
+            init={
+                "username": "admin",
+                "email": generator.String("admin@gmail.com"),
+                "_password": pwd_context.hash("admin"),
+                "lastname": "admin",
+                "firstname": "admin",
+                "address": generator.String("\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c"),
+                "phonenumber": generator.String("\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d")
+            }
+        )
+
+        for user in adminfaker.create(1):
             self.db.session.add(user)
+
+        

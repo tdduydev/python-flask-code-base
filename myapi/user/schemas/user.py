@@ -18,11 +18,12 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     phone = fields.String(validate=validate.Length(max=11))
     created_at = auto_field(dump_only = True)
     updated_at = auto_field(dump_only = True)
+    deleted_at = auto_field(dump_only = True)
 
     class Meta:
         model = User
         sqla_session = db.session
         load_instance = True
-        exclude = ("_password",)
+        exclude = ("_password","created_at","updated_at","deleted_at")
 
     
