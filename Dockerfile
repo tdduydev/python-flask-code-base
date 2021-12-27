@@ -19,4 +19,4 @@ RUN pip install -e .
 COPY myapi myapi/
 COPY migrations migrations/
 
-EXPOSE 5000
+EXPOSE 7777
