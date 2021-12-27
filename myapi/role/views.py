@@ -378,6 +378,55 @@ def delete_role(id):
     return jsonify({"msg": "Role has been deleted successfully"}), 200
 
 
+@ blueprint.route("/update_permission/<id>", methods=["POST"])
+@ jwt_required()
+@ permissions_required("role", ["update"])
+def update_permission(id):
+    # region Swagger UI
+    """Update permission
+    ---
+    post:
+        tags:
+          - role
+        summary: Update role permission
+        description: Update role permission via id
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: integer
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  permissions:
+                    type: string
+                    example: {"auth": {"change_password": false, "login": false, "refresh": false, "revoke_access": false, "revoke_refresh": false}, "role": {"assign_role": false, "create": false,"get": true, "delete": false,"unassign_role": false, "update": false}, "user": {"create": false, "delete": false, "edit": false, "update": false}}
+                    required: true
+        responses:
+          200:
+            description: Role's permission has been updated successfully
+          400:
+            description: bad request
+          401:
+            description: unauthorized
+    """
+    # endregion
+
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+    # GET THE ROLE USING PROVIDED id
+    role: Role = Role.query.get_or_404(id)
+    # CHECK IF role HAD ALREADY BEEN DELETED
+    # IF role HADN'T BEEN DELETED THEN SET TIMESTAMP
+    role.permissions = json.dumps(request.json.get("permissions", None))
+    role.deleted_at = datetime.datetime.now()
+    db.session.commit()
+    return jsonify({"msg": "Role's permissions has been updated successfully"}), 200
+
+
 @ blueprint.before_app_first_request
 def register_views():
     apispec.spec.path(view=assign_role, app=app)
@@ -388,3 +437,4 @@ def register_views():
     apispec.spec.path(view=unassign_role, app=app)
     apispec.spec.path(view=get_role_list, app=app)
     apispec.spec.path(view=get_user_role, app=app)
+    apispec.spec.path(view=update_permission, app=app)

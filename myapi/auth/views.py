@@ -70,7 +70,7 @@ def login():
     user = User.query.filter_by(username=username).first()
     if user is None or not pwd_context.verify(password, user.password):
         return jsonify({"msg": "Bad credentials"}), 400
-    
+
     access_token = create_access_token(identity=user.id)
     refresh_token = create_refresh_token(identity=user.id)
     add_token_to_database(access_token, app.config["JWT_IDENTITY_CLAIM"])
@@ -178,7 +178,6 @@ def revoke_refresh_token():
     return jsonify({"message": "token revoked"}), 200
 
 
-
 @blueprint.route("/change_password", methods=["PUT"])
 @jwt_required()
 def change_password():
@@ -219,13 +218,13 @@ def change_password():
     old_password = request.json.get("old_password", None)
     new_password = request.json.get("new_password", None)
     retype_password = request.json.get("retype_password", None)
-    
+
     if pwd_context.verify(old_password, password) is False:
-      return jsonify({"msg": "Enter a valid password and try again."}), 400
-      
+        return jsonify({"msg": "Enter a valid password and try again."}), 400
+
     if new_password != retype_password:
-      return jsonify({"msg": "Password do not match"}), 400
-    
+        return jsonify({"msg": "Password do not match"}), 400
+
     user = User.query.filter_by(username=user_jwt.username).first()
     user.password = new_password
     db.session.commit()

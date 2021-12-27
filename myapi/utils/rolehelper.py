@@ -14,13 +14,15 @@ def permissions_required(permission_field: str, permission_names: List[str] = No
     def wrapper(fn):
         @functools.wraps(fn)
         def decorator(*args, **kwargs):
-
             # VALID THAT JWT EXIST
             verify_jwt_in_request()
 
             # GET THE CURRENT USER
             user: User = current_user
 
+            # IF USER IS A SUPER ADMIN THEN PERMIT ALL REQUEST
+            if user.is_super_admin == True:
+                return fn(*args, **kwargs)
             # LOOP THROUGH CURRENT USER ROLES
             for user_role in user.assigned_roles:
                 PERMITTED = True  # CHECK IF ALL PERMISSIONS ARE PERMITTED
@@ -35,10 +37,8 @@ def permissions_required(permission_field: str, permission_names: List[str] = No
                 for permission in permission_names:
 
                     if not permission in permission_dict[permission_field]:
-                        print("DONT HAVE PERMISSION NAME")
-                        return jsonify(msg="NOT PERMMITTED"), 403
-
-                    if permission_dict[permission_field][permission] == False:
+                        PERMITTED = False
+                    elif permission_dict[permission_field][permission] == False:
                         PERMITTED = False
 
                 if PERMITTED == True:

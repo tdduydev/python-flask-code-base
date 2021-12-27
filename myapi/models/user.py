@@ -6,14 +6,14 @@ from myapi.extensions import db, pwd_context
 from flask_jwt_extended import current_user
 from flask_seeder import Seeder, Faker, generator
 from sqlalchemy.dialects import postgresql
-from sqlalchemy import event, func , Index
+from sqlalchemy import event, func, Index
 
 
 class User(db.Model):
     """Basic user model"""
     __tablename__ = "Users"
 
-    #PROPERTIES
+    # PROPERTIES
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=True)
@@ -23,13 +23,14 @@ class User(db.Model):
     address = db.Column(db.String(80), nullable=True)
     phone = db.Column(db.String(12), nullable=True)
     active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=True )
-    updated_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=True )
-    deleted_at = db.Column(db.TIMESTAMP, nullable=True )
+    is_super_admin = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=True)
+    updated_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=True)
+    deleted_at = db.Column(db.TIMESTAMP, nullable=True)
 
-    #RELATIONSHIPS
-    assigned_roles = db.relationship("UserWithRole", backref="user", lazy = "joined")
-    
+    # RELATIONSHIPS
+    assigned_roles = db.relationship("UserWithRole", backref="user", lazy="joined")
+
     @hybrid_property
     def password(self):
         return self._password
@@ -71,11 +72,13 @@ class User(db.Model):
             'idx_user_fts',
             __ts_vector__,
             postgresql_using='gin'
-        ) ,
+        ),
     )
 
-#TRIGGERS
+# TRIGGERS
+
+
 @event.listens_for(User, "before_update")
-def on_update_trigger(mapper,connection,target):
+def on_update_trigger(mapper, connection, target):
     table = User.__table__
     target.updated_at = datetime.datetime.now()
