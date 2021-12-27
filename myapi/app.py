@@ -8,7 +8,6 @@ from myapi.extensions import migrate
 from flask_cors import CORS
 from flask_seeder import FlaskSeeder
 
-
 def create_app(testing=False):
     """Application factory, used to create application"""
     app = Flask("myapi")

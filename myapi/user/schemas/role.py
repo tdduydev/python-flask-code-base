@@ -7,13 +7,13 @@ from myapi.extensions import ma, db
 from marshmallow import validate, fields
 from myapi.models import Role
 
+
 class RoleSchema(ma.SQLAlchemyAutoSchema):
     id = ma.Int(dump_only=True)
-    created_at = auto_field(dump_only = True)
-    updated_at = auto_field(dump_only = True)
-    deleted_at = auto_field(dump_only = True)
+    permissions = auto_field(dump_only=True)
 
     class Meta:
         model = Role
         sqla_session = db.session
         load_instance = True
+        exclude = ("created_at", "updated_at", "deleted_at")
