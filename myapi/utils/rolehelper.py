@@ -41,14 +41,17 @@ def permissions_required(permission_field: str, permission_names: List[str] = No
         def decorator(*args, **kwargs):
             # VALID THAT JWT EXIST
             verify_jwt_in_request()
-
             # GET THE CURRENT USER
             user: User = current_user
-
+            print(user)
             # IF USER IS A SUPER ADMIN THEN PERMIT ALL REQUEST
+            print(user.is_super_admin)
             if user.is_super_admin == True:
                 return fn(*args, **kwargs)
             # LOOP THROUGH CURRENT USER ROLES
+            if not user.assigned_roles:
+                print("fuckingshit")
+                return {"msg": "NOT PERMMITTED"}, 403
             for user_role in user.assigned_roles:
                 PERMITTED = True  # CHECK IF ALL PERMISSIONS ARE PERMITTED
                 # DEFINE user_role AS UserWithRole TYPE
@@ -69,6 +72,6 @@ def permissions_required(permission_field: str, permission_names: List[str] = No
                 if PERMITTED == True:
                     return fn(*args, **kwargs)
 
-            return jsonify(msg="NOT PERMMITTED"), 403
+            return {"msg": "NOT PERMMITTED"}, 403
         return decorator
     return wrapper
