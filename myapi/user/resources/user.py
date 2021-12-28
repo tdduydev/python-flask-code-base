@@ -6,6 +6,7 @@ from myapi.user.schemas import UserSchema, user
 from myapi.models import User
 from myapi.extensions import db, pwd_context
 from myapi.commons.pagination import paginate
+from myapi.utils.rolehelper import permissions_required
 
 
 class UserResource(Resource):
@@ -86,11 +87,13 @@ class UserResource(Resource):
 
     method_decorators = [jwt_required()]
 
+    @permissions_required("user", ["get"])
     def get(self, user_id):
         schema = UserSchema()
         user = User.query.get_or_404(user_id)
         return {"user": schema.dump(user)}
 
+    @permissions_required("user", ["update"])
     def put(self, user_id):
         schema = UserSchema(partial=True)
         user = User.query.get_or_404(user_id)
@@ -100,6 +103,7 @@ class UserResource(Resource):
 
         return {"msg": "user updated", "user": schema.dump(user)}
 
+    @permissions_required("user", ["delete"])
     def delete(self, user_id):
         user = User.query.get_or_404(user_id)
         db.session.delete(user)
@@ -155,11 +159,13 @@ class UserList(Resource):
 
     method_decorators = [jwt_required()]
 
+    @permissions_required("user", ["get"])
     def get(self):
         schema = UserSchema(many=True)
         query = User.query
         return paginate(query, schema)
 
+    @permissions_required("user", ["create"])
     def post(self):
         schema = UserSchema()
         user = schema.load(request.json)
@@ -240,6 +246,7 @@ class UserSearch(Resource):
     #     query = User.query.filter(User.__ts_vector__.match(expressions, postgresql_regconfig='english')).all()
     #     return paginate(query, schema)
 
+    @permissions_required("user", ["get"])
     def get(self):
         search_key = request.args.get('search_key')
         print(search_key)
