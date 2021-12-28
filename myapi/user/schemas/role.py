@@ -10,7 +10,6 @@ from myapi.models import Role
 
 class RoleSchema(ma.SQLAlchemyAutoSchema):
     id = ma.Int(dump_only=True)
-    permissions = auto_field(dump_only=True)
 
     class Meta:
         model = Role

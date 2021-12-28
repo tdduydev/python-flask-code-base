@@ -20,6 +20,7 @@ from marshmallow import EXCLUDE
 import datetime
 from myapi.user.schemas.userrole import UserWithRoleSchema
 from myapi.utils import permissions_required
+from myapi.utils.rolehelper import update_permissions
 
 blueprint = Blueprint("role", __name__, url_prefix="/role")
 
@@ -203,7 +204,20 @@ def update_role(id):
           content:
             application/json:
               schema:
-                RoleSchema
+                type: object
+                properties:
+                  permissions:
+                    type: string
+                    example: {"auth": {"change_password": false, "login": false, "refresh": false, "revoke_access": false, "revoke_refresh": false}, "role": {"assign_role": false, "create": false,"get": true, "delete": false,"unassign_role": false, "update": false}, "user": {"create": false, "delete": false, "edit": false, "update": false}}
+                    required: true
+                  description:
+                    type: string
+                    example: description
+                    required: true
+                  name:
+                    type: string
+                    example: name
+                    required: true
         responses:
           200:
             description: Role has been updated successfully
@@ -221,8 +235,10 @@ def update_role(id):
 
     # SETUP SCHEMA AND TURN JSON INTO THE CORRECT OBJECT
     schema = RoleSchema()
-    role = Role.query.get_or_404(id)
-    role = schema.load(request.json, instance=role)
+    role: Role = Role.query.get_or_404(id)
+    role.permissions = json.dumps(request.json.get("permissions", None))
+    role.name = request.json.get("name", None)
+    role.description = request.json.get("description", None)
 
     db.session.commit()
 
@@ -263,7 +279,8 @@ def get_role(id):
     if not id:
         return jsonify({"msg": "Missing id"}), 400
 
-    role = Role.query.get_or_404(id)
+    role: Role = Role.query.get_or_404(id)
+    role.permissions = update_permissions(role.permissions)
     return jsonify(RoleSchema().dump(role)), 200
 
 
@@ -297,6 +314,11 @@ def get_role_list():
     # endregion
 
     roles = Role.query
+
+    for role in roles:
+        role: Role = role
+        role.permissions = update_permissions(role.permissions)
+
     return jsonify(RoleSchema().dump(roles, many=True)), 200
 
 
@@ -378,55 +400,6 @@ def delete_role(id):
     return jsonify({"msg": "Role has been deleted successfully"}), 200
 
 
-@ blueprint.route("/update_permission/<id>", methods=["POST"])
-@ jwt_required()
-@ permissions_required("role", ["update"])
-def update_permission(id):
-    # region Swagger UI
-    """Update permission
-    ---
-    post:
-        tags:
-          - role
-        summary: Update role permission
-        description: Update role permission via id
-        parameters:
-          - in: path
-            name: id
-            schema:
-              type: integer
-        requestBody:
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  permissions:
-                    type: string
-                    example: {"auth": {"change_password": false, "login": false, "refresh": false, "revoke_access": false, "revoke_refresh": false}, "role": {"assign_role": false, "create": false,"get": true, "delete": false,"unassign_role": false, "update": false}, "user": {"create": false, "delete": false, "edit": false, "update": false}}
-                    required: true
-        responses:
-          200:
-            description: Role's permission has been updated successfully
-          400:
-            description: bad request
-          401:
-            description: unauthorized
-    """
-    # endregion
-
-    if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
-    # GET THE ROLE USING PROVIDED id
-    role: Role = Role.query.get_or_404(id)
-    # CHECK IF role HAD ALREADY BEEN DELETED
-    # IF role HADN'T BEEN DELETED THEN SET TIMESTAMP
-    role.permissions = json.dumps(request.json.get("permissions", None))
-    role.deleted_at = datetime.datetime.now()
-    db.session.commit()
-    return jsonify({"msg": "Role's permissions has been updated successfully"}), 200
-
-
 @ blueprint.before_app_first_request
 def register_views():
     apispec.spec.path(view=assign_role, app=app)
@@ -437,4 +410,3 @@ def register_views():
     apispec.spec.path(view=unassign_role, app=app)
     apispec.spec.path(view=get_role_list, app=app)
     apispec.spec.path(view=get_user_role, app=app)
-    apispec.spec.path(view=update_permission, app=app)

@@ -33,15 +33,15 @@ class DemoSeeder(Seeder):
         adminfaker = Faker(
             cls=User,
             init={
-                "username": "admin",
-                "email": generator.String("admin@gmail.com"),
-                "_password": pwd_context.hash("admin"),
-                "lastname": "admin",
-                "firstname": "admin",
+                "username": "normal",
+                "email": generator.String("normal@gmail.com"),
+                "_password": pwd_context.hash("normal"),
+                "lastname": "normal",
+                "firstname": "normal",
                 "address": generator.String("\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c\\c"),
                 "phonenumber": generator.String("\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d")
             }
         )
 
-        for user in faker.create(20):
+        for user in adminfaker.create(1):
             self.db.session.add(user)
