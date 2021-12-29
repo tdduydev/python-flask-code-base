@@ -3,10 +3,8 @@ from flask import request, jsonify
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, current_user
 from myapi.models.news import News
-from myapi.news.schemas import NewsSchema
+from myapi.schemas import NewsSchema
 from myapi.extensions import db
-
-
 
 
 class NewsList(Resource):
@@ -49,7 +47,7 @@ class NewsList(Resource):
         db.session.add(news)
         db.session.commit()
 
-        return {"msg":"news upload","news": schema.dump(news)}, 201
+        return {"msg": "news upload", "news": schema.dump(news)}, 201
 
 
 class NewsResource(Resource):
@@ -136,7 +134,6 @@ class NewsResource(Resource):
         news = News.query.get_or_404(news_id)
         return {"news": schema.dump(news)}
 
-    
     def put(self, news_id):
         schema = NewsSchema(partial=True)
         news = News.query.get_or_404(news_id)

@@ -2,7 +2,7 @@ from flask import request, jsonify
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, current_user
 from marshmallow.fields import Email
-from myapi.user.schemas import UserSchema, user
+from myapi.schemas import UserSchema, user
 from myapi.models import User
 from myapi.extensions import db, pwd_context
 from myapi.commons.pagination import paginate

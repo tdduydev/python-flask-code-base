@@ -15,10 +15,10 @@ from sqlalchemy.sql.expression import update
 from myapi import permissions
 from myapi.extensions import db, apispec
 from myapi.models import User, UserWithRole, Role, role
-from myapi.user.schemas.role import RoleSchema
+from myapi.schemas.role import RoleSchema
 from marshmallow import EXCLUDE
 import datetime
-from myapi.user.schemas.userrole import UserWithRoleSchema
+from myapi.schemas.userrole import UserWithRoleSchema
 from myapi.utils import permissions_required
 from myapi.utils.rolehelper import update_permissions
 
@@ -313,8 +313,10 @@ def get_role_list():
     """
     # endregion
 
+    # GET LIST OF Role
     roles = Role.query
 
+    # UPDATE ALL PERMISSION FOR EACH ROLE
     for role in roles:
         role: Role = role
         role.permissions = update_permissions(role.permissions)

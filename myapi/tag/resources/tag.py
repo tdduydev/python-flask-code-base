@@ -2,7 +2,7 @@ from flask import request, jsonify
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, current_user
 from myapi.models.tag import Tag
-from myapi.tag.schemas.tag import TagSchema
+from myapi.schemas.tag import TagSchema
 from myapi.extensions import db
 
 
@@ -46,7 +46,7 @@ class TagList(Resource):
         db.session.add(tag)
         db.session.commit()
 
-        return {"msg":"tag upload","tag": schema.dump(tag)}, 201
+        return {"msg": "tag upload", "tag": schema.dump(tag)}, 201
 
 
 class TagResource(Resource):
@@ -133,7 +133,6 @@ class TagResource(Resource):
         tag = Tag.query.get_or_404(tag_id)
         return {"tag": schema.dump(tag)}
 
-    
     def put(self, tag_id):
         schema = TagSchema(partial=True)
         tag = Tag.query.get_or_404(tag_id)

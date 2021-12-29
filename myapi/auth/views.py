@@ -8,7 +8,7 @@ from flask_jwt_extended import (
     current_user as user_jwt
 )
 from sqlalchemy.sql.functions import current_user
-from myapi.user.schemas.user import UserSchema
+from myapi.schemas.user import UserSchema
 
 from myapi.models import User
 from myapi.extensions import pwd_context, jwt, apispec, db
