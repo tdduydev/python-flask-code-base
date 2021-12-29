@@ -1,6 +1,7 @@
 
 from flask.json import jsonify
 from flask_jwt_extended.view_decorators import jwt_required
+from myapi.helper.http_code import HttpCode
 from myapi.models import Category
 from myapi.schemas import CategorySchema
 from myapi.utils.rolehelper import permissions_required
@@ -52,7 +53,7 @@ def add_category():
     category = CategorySchema().load(request.json)
     db.session.add(category)
     db.session.commit()
-    return {"msg": "Category has been created successfully"}, 200
+    return {"msg": "Category has been created successfully"}, HttpCode.OK
 
 
 @blueprint.route("/list", methods=["GET"])
