@@ -30,7 +30,7 @@ class Tag(db.Model):
 # TRIGGERS
 
 
-@event.listens_for(Role, "before_insert")
+@event.listens_for(Tag, "before_insert")
 def on_insert_trigger(mapper, connection, target):
     table = Role.__table__
     verify_jwt_in_request()
@@ -38,7 +38,7 @@ def on_insert_trigger(mapper, connection, target):
     target.created_by = user.id
 
 
-@event.listens_for(Role, "before_update")
+@event.listens_for(Tag, "before_update")
 def on_update_trigger(mapper, connection, target):
     table = Role.__table__
     target.updated_at = datetime.datetime.now()

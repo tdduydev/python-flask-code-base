@@ -5,7 +5,6 @@ PERMISSION = {
         'create': False,
         'get': True,
         'update': False,
-        'edit': False,
         'delete': False
     },
     'role': {
@@ -22,5 +21,14 @@ PERMISSION = {
         'login': True,
         'revoke_access': False,
         'revoke_refresh': False
+    },
+    'category': {
+        'create': False,
+        'get': True,
+        'update': False,
+        'delete': False,
+        'assign_category': False,
+        'unassign_category': False
+
     }
 }

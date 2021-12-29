@@ -1,5 +1,5 @@
 from flask import Flask
-from myapi import news, user, auth, role, tag
+from myapi import news, user, auth, role, tag, category
 from myapi import manage
 from myapi.extensions import apispec
 from myapi.extensions import db
@@ -7,6 +7,7 @@ from myapi.extensions import jwt
 from myapi.extensions import migrate
 from flask_cors import CORS
 from flask_seeder import FlaskSeeder
+
 
 def create_app(testing=False):
     """Application factory, used to create application"""
@@ -67,3 +68,4 @@ def register_blueprints(app):
     app.register_blueprint(role.views.blueprint)
     app.register_blueprint(news.views.blueprint)
     app.register_blueprint(tag.views.blueprint)
+    app.register_blueprint(category.views.blueprint)

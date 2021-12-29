@@ -14,6 +14,7 @@ from marshmallow.utils import INCLUDE
 from sqlalchemy.sql.expression import update
 from myapi import permissions
 from myapi.extensions import db, apispec
+from myapi.helper.http_code import HttpCode
 from myapi.models import User, UserWithRole, Role, role
 from myapi.schemas.role import RoleSchema
 from marshmallow import EXCLUDE
@@ -168,19 +169,26 @@ def add_role():
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
 
+    # CHECK IF REQUEST IS APPROPRIATE
+    if not request.json.get("name", None) or str(request.json.get("name", None)).isspace():
+        return {"msg": "Name is missing"}
+
+    # CHECK IF THE Role IS ALREADY EXIST
+    if Role.query.filter(Role.name == request.json.get("name", None)).first():
+        return {"msg": "The Role had already been created"}
+
     # SETUP SCHEMA AND TURN JSON INTO THE CORRECT OBJECT
     schema = RoleSchema()
-    print(request.json)
     role = schema.load(request.json)
 
     # CHECK IF DATA IS INSTANTIATED
     if not role:
-        return jsonify({"msg": "Role cannot be created"}), 400
+        return jsonify({"msg": "Role cannot be created"}), HttpCode.BadRequest
 
     # ADD DATA TO THE DATABASE AND COMMIT
     db.session.add(role)
     db.session.commit()
-    return jsonify({"msg": "Role has been created successfully"}), 201
+    return jsonify({"msg": "Role has been created successfully"}), HttpCode.Created
 
 
 @blueprint.route("/<id>", methods=["PUT"])
@@ -232,6 +240,10 @@ def update_role(id):
     # IF NOT, SEND RESPONSE STATUS 400
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
+
+    # CHECK IF REQUEST IS APPROPRIATE
+    if not request.json.get("name", None) or str(request.json.get("name", None)).isspace():
+        return {"msg": "Name is missing"}, 400
 
     # SETUP SCHEMA AND TURN JSON INTO THE CORRECT OBJECT
     schema = RoleSchema()
@@ -298,7 +310,7 @@ def get_role_list():
         description: Get a role via id
         responses:
           200:
-            description: bad request
+            description: success
             content:
               application/json:
                 schema:
@@ -360,7 +372,6 @@ def get_user_role(userid):
 
     # GET THE ROLES USING THE userid
     roles = Role.query.join(UserWithRole).join(User).filter(User.id == userid).all()
-    print(roles)
     return jsonify(RoleSchema().dump(roles, many=True)), 200
 
 
@@ -404,6 +415,8 @@ def delete_role(id):
 
 @ blueprint.before_app_first_request
 def register_views():
+    apispec.spec.components.schema("RoleSchema", schema=RoleSchema)
+    apispec.spec.components.schema("UserWithRoleSchema", schema=UserWithRoleSchema)
     apispec.spec.path(view=assign_role, app=app)
     apispec.spec.path(view=add_role, app=app)
     apispec.spec.path(view=update_role, app=app)

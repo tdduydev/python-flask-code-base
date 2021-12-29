@@ -19,8 +19,6 @@ api.add_resource(UserSearch, "/search", endpoint="search")
 @blueprint.before_app_first_request
 def register_views():
     apispec.spec.components.schema("UserSchema", schema=UserSchema)
-    apispec.spec.components.schema("RoleSchema", schema=RoleSchema)
-    apispec.spec.components.schema("UserWithRoleSchema", schema=UserWithRoleSchema)
 
     apispec.spec.path(view=UserResource, app=current_app)
     apispec.spec.path(view=UserList, app=current_app)
