@@ -13,4 +13,4 @@ class CategorySchema(ma.SQLAlchemyAutoSchema):
         model = Category
         sqla_session = db.session
         load_instance = True
-        exclude = ("created_at", "updated_at", "deleted_at")
+        exclude = ("created_by", "created_at", "updated_at", "deleted_at")
