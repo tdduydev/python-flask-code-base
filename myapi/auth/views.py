@@ -8,6 +8,7 @@ from flask_jwt_extended import (
     current_user as user_jwt
 )
 from sqlalchemy.sql.functions import current_user
+from myapi.helper.http_code import HttpCode
 from myapi.schemas.user import UserSchema
 
 from myapi.models import User
@@ -60,16 +61,16 @@ def login():
       security: []
     """
     if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
+        return jsonify({"msg": "Missing JSON in request"}), HttpCode.BadRequest
 
     username = request.json.get("username", None)
     password = request.json.get("password", None)
     if not username or not password:
-        return jsonify({"msg": "Missing username or password"}), 400
+        return jsonify({"msg": "Missing username or password"}), HttpCode.BadRequest
 
     user = User.query.filter_by(username=username).first()
     if user is None or not pwd_context.verify(password, user.password):
-        return jsonify({"msg": "Bad credentials"}), 400
+        return jsonify({"msg": "Bad credentials"}), HttpCode.BadRequest
 
     access_token = create_access_token(identity=user.id)
     refresh_token = create_refresh_token(identity=user.id)
@@ -78,7 +79,7 @@ def login():
     print("User: ")
     print(user)
     ret = {"access_token": access_token, "refresh_token": refresh_token, "userInfo": UserSchema().dump(user)}
-    return ret, 200
+    return ret, HttpCode.OK
 
 
 @blueprint.route("/refresh", methods=["POST"])
@@ -111,7 +112,7 @@ def refresh():
     access_token = create_access_token(identity=current_user)
     ret = {"access_token": access_token}
     add_token_to_database(access_token, app.config["JWT_IDENTITY_CLAIM"])
-    return jsonify(ret), 200
+    return jsonify(ret), HttpCode.OK
 
 
 @blueprint.route("/revoke_access", methods=["DELETE"])
@@ -143,7 +144,7 @@ def revoke_access_token():
     jti = get_jwt()["jti"]
     user_identity = get_jwt_identity()
     revoke_token(jti, user_identity)
-    return jsonify({"message": "token revoked"}), 200
+    return jsonify({"message": "token revoked"}), HttpCode.OK
 
 
 @blueprint.route("/revoke_refresh", methods=["DELETE"])
@@ -175,7 +176,7 @@ def revoke_refresh_token():
     jti = get_jwt()["jti"]
     user_identity = get_jwt_identity()
     revoke_token(jti, user_identity)
-    return jsonify({"message": "token revoked"}), 200
+    return jsonify({"message": "token revoked"}), HttpCode.OK
 
 
 @blueprint.route("/change_password", methods=["PUT"])
@@ -220,16 +221,16 @@ def change_password():
     retype_password = request.json.get("retype_password", None)
 
     if pwd_context.verify(old_password, password) is False:
-        return jsonify({"msg": "Enter a valid password and try again."}), 400
+        return jsonify({"msg": "Enter a valid password and try again."}), HttpCode.BadRequest
 
     if new_password != retype_password:
-        return jsonify({"msg": "Password do not match"}), 400
+        return jsonify({"msg": "Password do not match"}), HttpCode.BadRequest
 
     user = User.query.filter_by(username=user_jwt.username).first()
     user.password = new_password
     db.session.commit()
 
-    return jsonify({"msg": "Change Password Successfully"}), 200
+    return jsonify({"msg": "Change Password Successfully"}), HttpCode.OK
 
 
 @jwt.user_lookup_loader

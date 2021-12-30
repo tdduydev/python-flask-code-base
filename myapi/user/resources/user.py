@@ -2,11 +2,14 @@ from flask import request, jsonify
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, current_user
 from marshmallow.fields import Email
+from myapi.helper.http_code import HttpCode
+from myapi.helper.multi_language import DictionaryReturnType, return_message
 from myapi.schemas import UserSchema, user
 from myapi.models import User
 from myapi.extensions import db, pwd_context
 from myapi.commons.pagination import paginate
-from myapi.utils.rolehelper import permissions_required
+from myapi.helper.multi_language import DictionaryReturnType
+from myapi.utils.role_helper import permissions_required
 
 
 class UserResource(Resource):
@@ -173,7 +176,7 @@ class UserList(Resource):
         db.session.add(user)
         db.session.commit()
 
-        return {"msg": "user created", "user": schema.dump(user)}, 201
+        return {"msg": return_message['vn'][DictionaryReturnType.success], "user": schema.dump(user)}, HttpCode.Created
 
 
 class UserInform(Resource):

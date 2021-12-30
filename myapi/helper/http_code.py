@@ -1,9 +1,4 @@
-
-
-from enum import Enum
-
-
-class HttpCode(Enum):
+class HttpCode:
     # SUCCESS
     OK = 200
     Created = 201

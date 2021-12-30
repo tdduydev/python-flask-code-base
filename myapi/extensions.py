@@ -8,13 +8,12 @@ from passlib.context import CryptContext
 from flask_jwt_extended import JWTManager
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
-
 from myapi.commons.apispec import APISpecExt
-
-
+from myapi.utils.multi_language_helper import MultiLanguage
 db = SQLAlchemy()
 jwt = JWTManager()
 ma = Marshmallow()
 migrate = Migrate()
 apispec = APISpecExt()
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+lang = MultiLanguage()

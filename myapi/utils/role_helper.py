@@ -70,6 +70,6 @@ def permissions_required(permission_field: str, permission_names: List[str] = No
                 if PERMITTED == True:
                     return fn(*args, **kwargs)
 
-            return {"msg": "NOT PERMMITTED"}, 503
+            return {"msg": "NOT PERMMITTED"}, HttpCode.PermissionDenied
         return decorator
     return wrapper

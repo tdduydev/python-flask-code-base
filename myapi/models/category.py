@@ -46,4 +46,4 @@ def on_insert_trigger(mapper, connection, target):
 @event.listens_for(Category, "before_update")
 def on_update_trigger(mapper, connection, target):
     table = Role.__table__
-    target.updated_at = datetime.datetime.now()
+    target.updated_at = datetime.now()

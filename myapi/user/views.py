@@ -2,6 +2,7 @@ from flask import Blueprint, current_app, jsonify
 from flask_restful import Api
 from marshmallow import ValidationError
 from myapi.extensions import apispec
+from myapi.helper.http_code import HttpCode
 from myapi.user.resources import UserResource, UserList, UserInform, UserSearch
 from myapi.schemas import UserSchema, RoleSchema, UserWithRoleSchema
 
@@ -33,4 +34,4 @@ def handle_marshmallow_error(e):
     This will avoid having to try/catch ValidationErrors in all endpoints, returning
     correct JSON response with associated HTTP 400 Status (https://tools.ietf.org/html/rfc7231#section-6.5.1)
     """
-    return jsonify(e.messages), 400
+    return jsonify(e.messages), HttpCode.BadRequest
