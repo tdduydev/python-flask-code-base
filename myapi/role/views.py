@@ -14,14 +14,17 @@ from marshmallow.utils import INCLUDE
 from sqlalchemy.sql.expression import update
 from myapi import permissions
 from myapi.commons.pagination import paginate
-from myapi.extensions import db, apispec
+from myapi.extensions import db, apispec, lang
 from myapi.helper.http_code import HttpCode
+from myapi.helper.multi_language import ReturnMessageEnum
 from myapi.models import User, UserWithRole, Role, role
 from myapi.schemas.role import RoleSchema
 from marshmallow import EXCLUDE
 import datetime
 from myapi.schemas.userrole import UserWithRoleSchema
 from myapi.utils.role_helper import update_permissions, permissions_required
+##########################################################################
+
 
 blueprint = Blueprint("role", __name__, url_prefix="/role")
 
@@ -59,27 +62,31 @@ def assign_role(userid, roleid):
     # endregion
 
     # CHECK IF username OR role_id EXIST
-    # IF NOT, SEND RESPONSE STATUS 400
     if not userid or not roleid:
-        return jsonify({"msg": "Missing userid or roleid"}), 400
+        return jsonify(
+            {"msg": f"{lang.get_current_text(ReturnMessageEnum.missing)}: userid or roleid"}), HttpCode.BadRequest
+    # CHECK IF userid and roleid IS IN CORRECT FORMAT
+    try:
+        userid = int(userid)
+        roleid = int(roleid)
+    except:
+        return jsonify(
+            {"msg": f"{lang.get_current_text(ReturnMessageEnum.fail)}: userid or roleid"}), HttpCode.BadRequest
 
     # CHECK IF USER EXISTS
-    # IF NOT, SEND RESPONSE STATUS 400
     if not User.query.filter_by(id=userid).first():
-        return jsonify({"msg": "User doesn't exist"}), 400
+        return jsonify({"msg": f"{lang.get_current_text(ReturnMessageEnum.not_exist)}: User"}), HttpCode.BadRequest
 
     # CHECK IF OBJECT EXISTS
-    # IF NOT, SEND RESPONSE STATUS 400
     if not Role.query.filter_by(id=roleid).first():
-        return jsonify({"msg": "Role doesn't exist"}), 400
+        return jsonify({"msg": f"{lang.get_current_text(ReturnMessageEnum.not_exist)}: Role"}), HttpCode.BadRequest
 
     user_with_role = UserWithRole(userid, roleid)
 
     # CHECK IF OBJECT IS INSTANTIATED THEN ADD TO THE DATABASE
-    if user_with_role:
-        db.session.add(user_with_role)
-        db.session.commit()
-        return jsonify({"msg": "User has been assigned successfully"}), HttpCode.Created
+    db.session.add(user_with_role)
+    db.session.commit()
+    return jsonify({"msg": f"{lang.get_current_text(ReturnMessageEnum.success)}"}), HttpCode.Created
 
 
 @blueprint.route("/unassign/<userid>/<roleid>", methods=["DELETE"])
@@ -112,29 +119,30 @@ def unassign_role(userid, roleid):
             description: unauthorized
     """
     # endregion
-
     # CHECK IF userid OR role_id EXIST
     # IF NOT, SEND RESPONSE STATUS 400
     if not userid or not roleid:
-        return jsonify({"msg": "Missing username or roleid"}), HttpCode.BadRequest
+        return jsonify(
+            {"msg": f"{lang.get_current_text(ReturnMessageEnum.missing)}: userid or roleid"}), HttpCode.BadRequest
 
-    # CHECK IF USER EXISTS
-    # IF NOT, SEND RESPONSE STATUS 400
-    if not User.query.filter_by(id=userid).first():
-        return jsonify({"msg": "User doesn't exist"}), HttpCode.BadRequest
-
-    # CHECK IF OBJECT EXISTS
-    # IF NOT, SEND RESPONSE STATUS 400
-    if not Role.query.filter_by(id=userid).first():
-        return jsonify({"msg": "Role doesn't exist"}), HttpCode.BadRequest
+    # CHECK IF userid and roleid IS IN CORRECT FORMAT
+    try:
+        userid = int(userid)
+        roleid = int(roleid)
+    except:
+        return jsonify(
+            {"msg": f"{lang.get_current_text(ReturnMessageEnum.fail)}: userid or roleid"}), HttpCode.BadRequest
 
     # INSTANTIATE AN UserWithRole OBJECT
     # IF OBJECT IS NULL RETURN RESPONSE STATUS 404
-    user_with_role = UserWithRole.query.filter_by(user_id=userid).filter_by(role_id=roleid).first_or_404()
+    user_with_role = UserWithRole.query\
+        .filter(UserWithRole.user_idn == userid)\
+        .filter(UserWithRole.role_id == roleid)\
+        .first_or_404()
 
     db.session.delete(user_with_role)
     db.session.commit()
-    return jsonify({"msg": "User has been unassigned successfully"}), HttpCode.OK
+    return jsonify({"msg": f"{lang.get_current_text(ReturnMessageEnum.success)}"}), HttpCode.OK
 
 
 @blueprint.route("", methods=["POST"])
@@ -167,28 +175,24 @@ def add_role():
     # CHECK IF REQUEST IS SENT AS JSON
     # IF NOT, SEND RESPONSE STATUS 400
     if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), HttpCode.BadRequest
+        return jsonify({"msg": f"{lang.get_current_text(ReturnMessageEnum.not_jsont)}"}), HttpCode.BadRequest
 
     # CHECK IF REQUEST IS APPROPRIATE
     if not request.json.get("name", None) or str(request.json.get("name", None)).isspace():
-        return {"msg": "Name is missing"}
+        return {"msg": f"{lang.get_current_text(ReturnMessageEnum.missing)}: name"}
 
     # CHECK IF THE Role IS ALREADY EXIST
     if Role.query.filter(Role.name == request.json.get("name", None)).first():
-        return {"msg": "The Role had already been created"}
+        return {"msg": f"{lang.get_current_text(ReturnMessageEnum.exist)}"}
 
     # SETUP SCHEMA AND TURN JSON INTO THE CORRECT OBJECT
     schema = RoleSchema()
     role = schema.load(request.json)
 
-    # CHECK IF DATA IS INSTANTIATED
-    if not role:
-        return jsonify({"msg": "Role cannot be created"}), HttpCode.BadRequest
-
     # ADD DATA TO THE DATABASE AND COMMIT
     db.session.add(role)
     db.session.commit()
-    return jsonify({"msg": "Role has been created successfully"}), HttpCode.Created
+    return jsonify({"msg": f"{lang.get_current_text(ReturnMessageEnum.success)}"}), HttpCode.Created
 
 
 @blueprint.route("/<id>", methods=["PUT"])
@@ -239,22 +243,19 @@ def update_role(id):
     # CHECK IF REQUEST IS SENT AS JSON
     # IF NOT, SEND RESPONSE STATUS 400
     if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), HttpCode.BadRequest
+        return jsonify({"msg": f"{lang.get_current_text(ReturnMessageEnum.not_json)}"}), HttpCode.BadRequest
 
     # CHECK IF REQUEST IS APPROPRIATE
     if not request.json.get("name", None) or str(request.json.get("name", None)).isspace():
-        return {"msg": "Name is missing"}, HttpCode.BadRequest
+        return {"msg": f"{lang.get_current_text(ReturnMessageEnum.not_json)}"}, HttpCode.BadRequest
 
     # SETUP SCHEMA AND TURN JSON INTO THE CORRECT OBJECT
-    schema = RoleSchema()
     role: Role = Role.query.get_or_404(id)
     role.permissions = json.dumps(request.json.get("permissions", None))
     role.name = request.json.get("name", None)
     role.description = request.json.get("description", None)
-
     db.session.commit()
-
-    return jsonify({"msg": "Role has been updated successfully"}), HttpCode.OK
+    return jsonify({"msg": f"{lang.get_current_text(ReturnMessageEnum.success)}"}), HttpCode.OK
 
 
 @blueprint.route("/<id>", methods=["GET"])
@@ -267,7 +268,7 @@ def get_role(id):
     get:
         tags:
           - role
-        summary: Get role
+        summary: Get a role
         description: Get a role via id
         parameters:
           - in: path
@@ -288,12 +289,14 @@ def get_role(id):
     # endregion
 
     # CHECK IF id IS NOT EMPTY ELSE RETURN RESPONSE STATUS 400
-    if not id:
-        return jsonify({"msg": "Missing id"}), HttpCode.NotFound
+    try:
+        id = int(id)
+    except:
+        return jsonify({"msg": f"{lang.get_current_text(ReturnMessageEnum.missing)}"}), HttpCode.BadRequest
 
     role: Role = Role.query.get_or_404(id)
     role.permissions = update_permissions(role.permissions)
-    return jsonify(RoleSchema().dump(role)), HttpCode.OK
+    return jsonify({"msg": lang.get_current_text(ReturnMessageEnum.success), "content": RoleSchema().dump(role)}), HttpCode.OK
 
 
 @blueprint.route("/list", methods=["GET"])
@@ -345,7 +348,7 @@ def get_user_role(userid):
     get:
         tags:
           - role
-        summary: Get user roles
+        summary: Get user's roles
         description: Get roles of user
         parameters:
           - in: path
@@ -369,6 +372,10 @@ def get_user_role(userid):
     """
     # endregion
 
+    try:
+        userid = int(userid)
+    except:
+        return jsonify({"msg": f"{lang.get_current_text(ReturnMessageEnum.missing)}"}), HttpCode.BadRequest
     # GET THE ROLES USING THE userid
     schema = RoleSchema(many=True)
     roles = Role.query.join(UserWithRole).join(User).filter(User.id == userid)
@@ -385,7 +392,7 @@ def delete_role(id):
     delete:
         tags:
           - role
-        summary: Delete role
+        summary: Delete a role
         description: Delete a role via id
         parameters:
           - in: path

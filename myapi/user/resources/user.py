@@ -3,12 +3,11 @@ from flask_restful import Resource
 from flask_jwt_extended import jwt_required, current_user
 from marshmallow.fields import Email
 from myapi.helper.http_code import HttpCode
-from myapi.helper.multi_language import DictionaryReturnType, return_message
+from myapi.helper.multi_language import ReturnMessageEnum
 from myapi.schemas import UserSchema, user
 from myapi.models import User
-from myapi.extensions import db, pwd_context
+from myapi.extensions import db, pwd_context, lang
 from myapi.commons.pagination import paginate
-from myapi.helper.multi_language import DictionaryReturnType
 from myapi.utils.role_helper import permissions_required
 
 
@@ -176,7 +175,7 @@ class UserList(Resource):
         db.session.add(user)
         db.session.commit()
 
-        return {"msg": return_message['vn'][DictionaryReturnType.success], "user": schema.dump(user)}, HttpCode.Created
+        return {"msg": lang.get_current_text(ReturnMessageEnum.success), "user": schema.dump(user)}, HttpCode.Created
 
 
 class UserInform(Resource):

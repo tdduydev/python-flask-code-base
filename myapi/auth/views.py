@@ -9,10 +9,11 @@ from flask_jwt_extended import (
 )
 from sqlalchemy.sql.functions import current_user
 from myapi.helper.http_code import HttpCode
+from myapi.helper.multi_language import ReturnMessageEnum
 from myapi.schemas.user import UserSchema
 
 from myapi.models import User
-from myapi.extensions import pwd_context, jwt, apispec, db
+from myapi.extensions import pwd_context, jwt, apispec, db, lang
 from myapi.auth.helpers import revoke_token, is_token_revoked, add_token_to_database
 import json
 
@@ -78,7 +79,10 @@ def login():
     add_token_to_database(refresh_token, app.config["JWT_IDENTITY_CLAIM"])
     print("User: ")
     print(user)
-    ret = {"access_token": access_token, "refresh_token": refresh_token, "userInfo": UserSchema().dump(user)}
+    ret = {"msg": lang.get_current_text(ReturnMessageEnum.success),
+           "access_token": access_token,
+           "refresh_token": refresh_token,
+           "userInfo": UserSchema().dump(user)}
     return ret, HttpCode.OK
 
 
