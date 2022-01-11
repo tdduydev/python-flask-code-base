@@ -1,8 +1,6 @@
 import datetime
-import json
 from flask_jwt_extended.view_decorators import verify_jwt_in_request
 from sqlalchemy import event
-from myapi import permissions
 from myapi.extensions import db
 from flask_jwt_extended import current_user
 from sqlalchemy.dialects.postgresql import UUID
@@ -14,7 +12,6 @@ class News(db.Model):
 
     __tablename__ = "News"
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.ForeignKey("Users.id"), nullable=False)
     title = db.Column(db.String(80), nullable=False)
     description = db.Column(db.String(300), nullable=False)
     content = db.Column(db.Text, nullable=False)
