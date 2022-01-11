@@ -18,7 +18,7 @@ class UserResource(Resource):
     ---
     get:
       tags:
-        - api
+        - user
       summary: Get a user
       description: Get a single user by ID
       parameters:
@@ -38,7 +38,7 @@ class UserResource(Resource):
           description: user does not exists
     put:
       tags:
-        - api
+        - user
       summary: Update a user
       description: Update a single user by ID
       parameters:
@@ -66,7 +66,7 @@ class UserResource(Resource):
           description: user does not exists
     delete:
       tags:
-        - api
+        - user
       summary: Delete a user
       description: Delete a single user by ID
       parameters:
@@ -121,7 +121,7 @@ class UserList(Resource):
     ---
     get:
       tags:
-        - api
+        - user
       summary: Get a list of users
       description: Get a list of paginated users
       responses:
@@ -139,7 +139,7 @@ class UserList(Resource):
                           $ref: '#/components/schemas/UserSchema'
     post:
       tags:
-        - api
+        - user
       summary: Create a user
       description: Create a new user
       requestBody:
@@ -186,7 +186,7 @@ class UserInform(Resource):
    ---
    get:
      tags:
-       - api
+       - user
      summary: Automatic User loading
      description: Get a user by jwt login
      responses:
@@ -222,7 +222,7 @@ class UserSearch(Resource):
       ---
       get:
         tags:
-          - api
+          - user
         summary: Search User by First Name
         description: Search user get list 
         parameters:

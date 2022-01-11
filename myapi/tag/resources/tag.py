@@ -8,32 +8,6 @@ from myapi.extensions import db
 
 class TagList(Resource):
 
-    """Creation 
-
-    ---
-    post:
-      tags:
-        - tag
-      summary: Create a tag
-      description: Create a tag
-      requestBody:
-        content:
-          application/json:
-            schema:
-              TagSchema
-      responses:
-        201:
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  msg:
-                    type: string
-                    example: tag upload
-                  tag: TagSchema
-    """
-
     method_decorators = [jwt_required()]
 
     @jwt_required()
@@ -50,81 +24,6 @@ class TagList(Resource):
 
 
 class TagResource(Resource):
-
-    """Single object resource
-
-    ---
-    get:
-      tags:
-        - tag
-      summary: Get a tag
-      description: Get a single tag by ID
-      parameters:
-        - in: path
-          name: tag_id
-          schema:
-            type: integer
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  tag: TagSchema
-        404:
-          description: tag does not exists
-    put:
-      tags:
-        - tag
-      summary: Update a tag
-      description: Update a single tag by ID
-      parameters:
-        - in: path
-          name: tag_id
-          schema:
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              TagSchema
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  msg:
-                    type: string
-                    example: tag updated
-                  tag: TagSchema
-        404:
-          description: tag does not exists
-    delete:
-      tags:
-        - tag
-      summary: Delete a tag
-      description: Delete a single tag by ID
-      parameters:
-        - in: path
-          name: tag_id
-          schema:
-            type: integer
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  msg:
-                    type: string
-                    example: tag deleted
-        404:
-          description: tag does not exists
-    """
 
     method_decorators = [jwt_required()]
 

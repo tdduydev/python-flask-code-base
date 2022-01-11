@@ -10,7 +10,6 @@ class Tag(db.Model):
 
     __tablename__ = "Tags"
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.ForeignKey("Users.id"), nullable=False)
     name = db.Column(db.String(80), nullable=False)
     created_by = db.Column(db.Integer, nullable=True)
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=True)

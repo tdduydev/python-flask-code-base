@@ -14,7 +14,7 @@ blueprint = Blueprint("category", __name__, url_prefix="/category")
 
 @blueprint.route("", methods=["POST"])
 @jwt_required()
-@permissions_required("category", ["create"])
+# @permissions_required("category", ["create"])
 def add_category():
     # region Swagger UI
     """Get category
@@ -56,12 +56,12 @@ def add_category():
     category = CategorySchema().load(request.json)
     db.session.add(category)
     db.session.commit()
-    return {"msg": DictionaryReturnType.success}, HttpCode.OK
+    return {"msg": "Category has been created successfully"}, 200
 
 
 @blueprint.route("/list", methods=["GET"])
 @jwt_required()
-@permissions_required("category", ["get"])
+# @permissions_required("category", ["get"])
 def get_category_list():
     # region Swagger UI
     """Get list of categories
